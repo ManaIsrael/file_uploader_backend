@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import File from '../models/File';
+import File from '../models/File.ts';
 
 export const getFiles = async (req: Request, res: Response) => {
   try {

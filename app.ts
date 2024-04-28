@@ -1,6 +1,9 @@
 import express from 'express';
-import fileRoutes from './routes/FileRoutes';
-import sequelize from './config/database';
+import fileRoutes from './routes/FileRoutes.ts';
+import sequelize from './config/database.ts';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
