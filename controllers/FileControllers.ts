@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import File from '../models/File.ts';
+import fs from 'fs';
 
 export const getFiles = async (req: Request, res: Response) => {
   try {
@@ -14,13 +15,20 @@ export const getFiles = async (req: Request, res: Response) => {
 export const uploadFile = async (req: Request, res: Response) => {
   try {
     const { description } = req.body;
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+    // Check if req.files exists before accessing its properties
+    if (!req.files || Object.values(req.files).length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
     }
-    const fileUrl = req.file.path;
 
-    const file = await File.create({ description, fileUrl });
-    res.status(201).json(file);
+    const fileUrls = Object.values(req.files).map((file: Express.Multer.File) => file.path);
+
+    // Concatenate file paths into a single string separated by commas
+    const fileUrlsString = fileUrls.join(',');
+
+    // Create a new File record with the concatenated file URLs
+    const createdFile = await File.create({ description, fileUrl: fileUrlsString });
+
+    res.status(201).json(createdFile);
   } catch (error) {
     console.error('Error uploading file:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -55,6 +63,23 @@ export const updateFile = async (req: Request, res: Response) => {
     res.json(file);
   } catch (error) {
     console.error('Error updating file:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const viewFile = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const file = await File.findByPk(id);
+
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+    res.json(file);
+    const fileStream = fs.createReadStream(file.fileUrl);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Error viewing file:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

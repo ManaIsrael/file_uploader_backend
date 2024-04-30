@@ -14,11 +14,11 @@ File.init(
   {
     description: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     fileUrl: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
 
   },
